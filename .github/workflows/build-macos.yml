@@ -1,0 +1,35 @@
+name: Build macOS app
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+
+    - name: Build macOS executable with PyInstaller
+      run: |
+        pyinstaller --noconfirm --onefile --windowed audio-plugin-manager.py
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: audio-plugin-manager-macos
+        path: dist/audio-plugin-manager
