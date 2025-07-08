@@ -168,6 +168,20 @@ class PluginManagerApp(tk.Tk):
                 "The author is not liable for any damages arising from its use.\n\n"
                 "Source code available at:\nhttps://github.com/plugindeals")
 
+    def sort_by_column(self, col):
+        data = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
+
+        try:
+            # Sorts alphabetically, case-insensitively
+            data.sort(key=lambda t: t[0].lower())
+        except Exception:
+            # Fallback in case values aren't strings
+            data.sort()
+
+        # Reorder rows based on sorted data
+        for index, (val, k) in enumerate(data):
+            self.tree.move(k, '', index)
+
     def create_widgets(self):
         btn_frame = ttk.Frame(self)
         btn_frame.pack(side='top', fill='x', padx=10, pady=5)
@@ -210,8 +224,9 @@ class PluginManagerApp(tk.Tk):
         columns = ('Name', 'Vendor', 'Format', 'Bitness', 'Favorite', 'Notes', 'Path')
         self.tree = ttk.Treeview(tree_frame, columns=columns, show='headings')
         for col in columns:
-            self.tree.heading(col, text=col)
+            self.tree.heading(col, text=col, command=lambda c=col: self.sort_by_column(c))
             self.tree.column(col, stretch=True)
+
         self.tree.column('Name', width=150)
         self.tree.column('Vendor', width=120)
         self.tree.column('Format', width=70, anchor='center')
@@ -249,7 +264,11 @@ class PluginManagerApp(tk.Tk):
             if bitness != 'All' and plugin.get('bitness', '') != bitness:
                 continue
             if search:
-                if not (search in plugin.get('name', '').lower() or search in plugin.get('vendor', '').lower() or search in plugin.get('notes', '').lower()):
+                search_match = any(
+                    search in str(plugin.get(field, '')).lower()
+                    for field in ['name', 'vendor', 'format', 'bitness', 'notes', 'path']
+                )
+                if not search_match:
                     continue
             fav_text = 'Yes' if plugin.get('favorite', False) else ''
             self.tree.insert('', 'end', iid=str(idx), values=(
