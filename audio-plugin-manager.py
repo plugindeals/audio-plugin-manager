@@ -32,6 +32,29 @@ EXCLUDED_DLLS = {
     "microsoft.web.webview2.core.dll",
 }
 
+def get_bitness(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            dos_headers = f.read(64)
+            if dos_headers[0:2] != b'MZ':
+                return 'Unknown'
+
+            f.seek(int.from_bytes(dos_headers[60:64], byteorder='little'))  # PE header offset
+            pe_header = f.read(6)
+            if pe_header[0:2] != b'PE':
+                return 'Unknown'
+
+            machine = int.from_bytes(pe_header[4:6], byteorder='little')
+            if machine == 0x8664:
+                return '64-bit'
+            elif machine == 0x014c:
+                return '32-bit'
+            else:
+                return 'Unknown'
+    except Exception:
+        return 'Unknown'
+
+
 def get_file_version_info(filename):
     if not os.path.exists(filename):
         return None
@@ -97,7 +120,7 @@ def scan_plugins(folders):
                     else:
                         fmt = 'Unknown'
 
-                    bitness = '64-bit' if 'x64' in path.lower() or '64' in path else '32-bit'
+                    bitness = get_bitness(path) if ext == '.dll' else '64-bit'
 
                     plugins.append({
                         'name': name,
