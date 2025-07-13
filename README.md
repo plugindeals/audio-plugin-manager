@@ -14,4 +14,11 @@ Thank you!
 
 ![audio-plugin-manager](https://github.com/user-attachments/assets/7cf501b1-69d7-4660-ab74-9788e7c99d52)
 
+Disclaimer & License
+
+This program is free software licensed under the GNU General Public License v3.0. You may redistribute and/or modify it under the terms of the GPL-3.0.
+
+This software is provided 'as is', without any warranty of any kind. The author is not liable for any damages arising from its use.
+
+Source code available at: https://github.com/plugindeals
 
